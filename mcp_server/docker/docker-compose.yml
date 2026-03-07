@@ -20,12 +20,19 @@ services:
       - FALKORDB_URI=redis://localhost:6379
       - FALKORDB_DATABASE=${FALKORDB_DATABASE:-default_db}
       - GRAPHITI_GROUP_ID=${GRAPHITI_GROUP_ID:-main}
-      - SEMAPHORE_LIMIT=${SEMAPHORE_LIMIT:-10}
+      - SEMAPHORE_LIMIT=3
       - CONFIG_PATH=/app/mcp/config/config.yaml
       - PATH=/root/.local/bin:${PATH}
+      # Anthropic API for LLM
+      - ANTHROPIC_API_KEY=${ANTHROPIC_API_KEY:?Set ANTHROPIC_API_KEY in .env}
+      # Ollama for embeddings (host machine)
+      - OPENAI_API_KEY=ollama
+      - OPENAI_API_URL=http://host.docker.internal:11434/v1
+      - OPENAI_BASE_URL=http://host.docker.internal:11434/v1
     volumes:
       - falkordb_data:/var/lib/falkordb/data
       - mcp_logs:/var/log/graphiti
+      - ../config/config.yaml:/app/mcp/config/config.yaml:ro
     ports:
       - "6379:6379"  # FalkorDB/Redis
       - "3000:3000"  # FalkorDB web UI

@@ -31,6 +31,7 @@ from models.response_types import (
     StatusResponse,
     SuccessResponse,
 )
+from models.entity_types import ENTITY_TYPES
 from services.factories import DatabaseDriverFactory, EmbedderFactory, LLMClientFactory
 from services.queue_service import QueueService
 from utils.formatting import format_fact_result
@@ -190,24 +191,8 @@ class GraphitiService:
             # Get database configuration
             db_config = DatabaseDriverFactory.create_config(self.config.database)
 
-            # Build entity types from configuration
-            custom_types = None
-            if self.config.graphiti.entity_types:
-                custom_types = {}
-                for entity_type in self.config.graphiti.entity_types:
-                    # Create a dynamic Pydantic model for each entity type
-                    # Note: Don't use 'name' as it's a protected Pydantic attribute
-                    entity_model = type(
-                        entity_type.name,
-                        (BaseModel,),
-                        {
-                            '__doc__': entity_type.description,
-                        },
-                    )
-                    custom_types[entity_type.name] = entity_model
-
-            # Store entity types for later use
-            self.entity_types = custom_types
+            # Use entity types defined in models/entity_types.py
+            self.entity_types = ENTITY_TYPES
 
             # Initialize Graphiti client with appropriate driver
             try:
